@@ -10,6 +10,8 @@ import { ArtistModule } from './artist/artist.module';
 import { AlbumModule } from './album/album.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { FavoritesAlbumsModule } from './favorites-albums/favorites-albums.module';
+import { FavoritesArtistsModule } from './favorites-artists/favorites-artists.module';
+import { FavoritesTracksModule } from './favorites-tracks/favorites-tracks.module';
 
 @Module({
   imports: [
@@ -27,6 +29,14 @@ import { FavoritesAlbumsModule } from './favorites-albums/favorites-albums.modul
           {
             path: 'album',
             module: FavoritesAlbumsModule,
+          },
+          {
+            path: 'artist',
+            module: FavoritesArtistsModule,
+          },
+          {
+            path: 'track',
+            module: FavoritesTracksModule,
           },
         ],
       },

@@ -12,6 +12,7 @@ import {
 import { UsersService } from './users.service';
 
 import { User } from './dto/user.dto';
+import { UserResponse } from './dto/user-response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 
@@ -20,17 +21,19 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get()
-  async getAllUsers(): Promise<User[]> {
+  async getAllUsers(): Promise<UserResponse[]> {
     return this.usersService.getAllUsers();
   }
 
   @Get(':userId')
-  async getUser(@Param('userId', ParseUUIDPipe) userId: string): Promise<User> {
+  async getUser(
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ): Promise<UserResponse> {
     return this.usersService.getUser(userId);
   }
 
   @Post()
-  async createUser(@Body() createDto: CreateUserDto): Promise<User> {
+  async createUser(@Body() createDto: CreateUserDto): Promise<UserResponse> {
     return this.usersService.createUser(createDto);
   }
 
@@ -38,7 +41,7 @@ export class UsersController {
   async updatePassword(
     @Body() updateDto: UpdatePasswordDto,
     @Param('userId', ParseUUIDPipe) userId: string,
-  ): Promise<User> {
+  ): Promise<UserResponse> {
     return this.usersService.updatePassword(userId, updateDto);
   }
 

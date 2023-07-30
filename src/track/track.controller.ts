@@ -24,30 +24,30 @@ export class TrackController {
     return this.trackService.getAllTracks();
   }
 
-  @Get(':userId')
+  @Get(':trackId')
   async getTrack(
-    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('trackId', ParseUUIDPipe) trackId: string,
   ): Promise<Track> {
-    return this.trackService.getTrack(userId);
+    return this.trackService.getTrack(trackId);
   }
 
   @Post()
-  async createTrack(@Body() trackDto: CreateTrackDto): Promise<Track> {
-    return this.trackService.createTrack(trackDto);
+  async createTrack(@Body() createDto: CreateTrackDto): Promise<Track> {
+    return this.trackService.createTrack(createDto);
   }
 
-  @Put(':userId')
+  @Put(':trackId')
   async updateTrack(
     @Body() updateDto: UpdateTrackDto,
-    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('trackId', ParseUUIDPipe) trackId: string,
   ): Promise<Track> {
-    return this.trackService.updateTrack(userId, updateDto);
+    return this.trackService.updateTrack(trackId, updateDto);
   }
 
-  @Delete(':userId')
+  @Delete(':trackId')
   async deleteTrack(
-    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('trackId', ParseUUIDPipe) trackId: string,
   ): Promise<void> {
-    return this.trackService.deleteTrack(userId);
+    return this.trackService.deleteTrack(trackId);
   }
 }

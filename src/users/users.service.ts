@@ -28,9 +28,9 @@ export class UsersService {
     return user;
   }
 
-  public async createUser(userDto: CreateUserDto): Promise<User> {
+  public async createUser(createDto: CreateUserDto): Promise<User> {
     const newUser = {
-      ...userDto,
+      ...createDto,
       id: uuidv4(),
       version: 1,
       createdAt: Date.now(),
@@ -42,7 +42,7 @@ export class UsersService {
 
   public async updatePassword(
     userId: string,
-    passwordDto: UpdatePasswordDto,
+    updateDto: UpdatePasswordDto,
   ): Promise<User> {
     const userIndex = users.findIndex((user: User) => user.id === userId);
     if (userIndex < 0) {
@@ -50,7 +50,7 @@ export class UsersService {
     }
     const user = users[userIndex];
 
-    if (user.password !== passwordDto.oldPassword) {
+    if (user.password !== updateDto.oldPassword) {
       throw new HttpException(
         ERRORS.OLD_PASSWORD_INCORRECT,
         HttpStatus.FORBIDDEN,
@@ -58,7 +58,7 @@ export class UsersService {
     }
     users[userIndex] = {
       ...user,
-      password: passwordDto.newPassword,
+      password: updateDto.newPassword,
       version: user.version + 1,
       updatedAt: Date.now(),
     };

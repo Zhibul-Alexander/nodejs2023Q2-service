@@ -30,16 +30,16 @@ export class UsersController {
   }
 
   @Post()
-  async createUser(@Body() userDto: CreateUserDto): Promise<User> {
-    return this.usersService.createUser(userDto);
+  async createUser(@Body() createDto: CreateUserDto): Promise<User> {
+    return this.usersService.createUser(createDto);
   }
 
   @Put(':userId')
   async updatePassword(
-    @Body() passwordDto: UpdatePasswordDto,
+    @Body() updateDto: UpdatePasswordDto,
     @Param('userId', ParseUUIDPipe) userId: string,
   ): Promise<User> {
-    return this.usersService.updatePassword(userId, passwordDto);
+    return this.usersService.updatePassword(userId, updateDto);
   }
 
   @Delete(':userId')

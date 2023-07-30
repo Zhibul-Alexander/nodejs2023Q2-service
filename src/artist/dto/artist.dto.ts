@@ -1,5 +1,5 @@
-export interface Artist {
-  id: string; // uuid v4
+export class Artist {
+  id: string;
   name: string;
   grammy: boolean;
 }

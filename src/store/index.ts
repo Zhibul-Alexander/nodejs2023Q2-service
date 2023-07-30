@@ -12,4 +12,8 @@ export const artists: Artist[] = [];
 
 export const albums: Album[] = [];
 
-export const favorites: Favorites[] = [];
+export const favorites: Favorites = {
+  artists: [],
+  albums: [],
+  tracks: [],
+};

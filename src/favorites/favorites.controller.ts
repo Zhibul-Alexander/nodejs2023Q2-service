@@ -9,7 +9,7 @@ export class FavoritesController {
   constructor(private favoritesService: FavoritesService) {}
 
   @Get()
-  async getAllFavorites(): Promise<FavoritesResponse[]> {
+  async getAllFavorites(): Promise<FavoritesResponse> {
     return this.favoritesService.getAllFavorites();
   }
 }

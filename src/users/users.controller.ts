@@ -11,7 +11,6 @@ import {
 
 import { UsersService } from './users.service';
 
-import { User } from './dto/user.dto';
 import { UserResponse } from './dto/user-response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';

@@ -1,6 +1,7 @@
 export const ERRORS = {
   USER_NOT_FOUND: 'User not found',
   OLD_PASSWORD_INCORRECT: 'Old password incorrect',
+  ERROR: 'Error',
   TRACK_NOT_FOUND: 'Track not found',
   TRACK_NOT_FOUND_IN_FAVORITES: 'Track not found in favorites tracks list',
   ARTIST_NOT_FOUND: 'Artist not found',

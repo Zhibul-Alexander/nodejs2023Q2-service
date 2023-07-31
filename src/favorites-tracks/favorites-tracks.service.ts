@@ -1,30 +1,27 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import { DataService } from '../data/data.service';
-
-import { ERRORS } from '../constants';
 
 @Injectable()
 export class FavoritesTracksService {
   constructor(private dataService: DataService) {}
 
-  public async addToFavorites(trackId: string): Promise<void> {
+  public async addToFavorites(trackId: string): Promise<boolean> {
     const track = await this.dataService.getTrack(trackId);
     if (!track) {
-      throw new UnprocessableEntityException(ERRORS.TRACK_NOT_FOUND);
+      return false;
     }
-    await this.dataService.addTrackToFavorites(trackId);
+    return this.dataService.addTrackToFavorites(trackId);
   }
 
-  public async deleteFromFavorites(trackId: string): Promise<void> {
+  public async deleteFromFavorites(
+    trackId: string,
+  ): Promise<boolean | undefined> {
     const track = await this.dataService.getTrack(trackId);
     if (!track) {
-      throw new NotFoundException(ERRORS.TRACK_NOT_FOUND);
+      return;
     }
     await this.dataService.deleteTrackFromFavorites(trackId);
+    return true;
   }
 }

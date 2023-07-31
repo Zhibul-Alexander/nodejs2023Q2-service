@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
 import { DataService } from '../data/data.service';
@@ -10,8 +6,6 @@ import { DataService } from '../data/data.service';
 import { Artist } from './dto/artist.dto';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
-
-import { ERRORS } from '../constants/index';
 
 @Injectable()
 export class ArtistService {
@@ -24,7 +18,7 @@ export class ArtistService {
   public async getArtist(artistId: string): Promise<Artist> {
     const artist = await this.dataService.getArtist(artistId);
     if (!artist) {
-      throw new NotFoundException(ERRORS.ARTIST_NOT_FOUND);
+      return;
     }
     return artist;
   }
@@ -34,11 +28,7 @@ export class ArtistService {
       ...createDto,
       id: uuidv4(),
     };
-    try {
-      return await this.dataService.createArtist(newArtist);
-    } catch {
-      throw new InternalServerErrorException(ERRORS.ARTIST_CREATED_ERROR);
-    }
+    return this.dataService.createArtist(newArtist);
   }
 
   public async updateArtist(
@@ -47,7 +37,7 @@ export class ArtistService {
   ): Promise<Artist> {
     const artist = await this.dataService.getArtist(artistId);
     if (!artist) {
-      throw new NotFoundException(ERRORS.ARTIST_NOT_FOUND);
+      return;
     }
     return this.dataService.updateArtist(artistId, updateDto);
   }

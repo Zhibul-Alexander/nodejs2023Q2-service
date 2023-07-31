@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
 import { DataService } from '../data/data.service';
@@ -10,8 +6,6 @@ import { DataService } from '../data/data.service';
 import { Album } from './dto/album.dto';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
-
-import { ERRORS } from '../constants';
 
 @Injectable()
 export class AlbumService {
@@ -24,7 +18,7 @@ export class AlbumService {
   public async getAlbum(albumId: string): Promise<Album> {
     const album = await this.dataService.getAlbum(albumId);
     if (!album) {
-      throw new NotFoundException(ERRORS.ALBUM_NOT_FOUND);
+      return;
     }
     return album;
   }
@@ -35,11 +29,7 @@ export class AlbumService {
       id: uuidv4(),
       artistId: null,
     };
-    try {
-      return this.dataService.createAlbum(newAlbum);
-    } catch {
-      throw new InternalServerErrorException(ERRORS.ALBUM_CREATED_ERROR);
-    }
+    return this.dataService.createAlbum(newAlbum);
   }
 
   public async updateAlbum(
@@ -48,7 +38,7 @@ export class AlbumService {
   ): Promise<Album> {
     const album = await this.dataService.getAlbum(albumId);
     if (!album) {
-      throw new NotFoundException(ERRORS.ALBUM_NOT_FOUND);
+      return;
     }
     return this.dataService.updateAlbum(albumId, updateDto);
   }

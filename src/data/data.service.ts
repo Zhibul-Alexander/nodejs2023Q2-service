@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { User } from '../users/dto/user.dto';
 import { Track } from '../track/dto/track.dto';
@@ -18,32 +13,32 @@ import { UpdateAlbumDto } from '../album/dto/update-album.dto';
 
 import { ERRORS } from '../constants';
 
-export const users: User[] = [];
-
-export const tracks: Track[] = [];
-
-export const artists: Artist[] = [];
-
-export const albums: Album[] = [];
-
-export const favorites: Favorites = {
-  artists: [],
-  tracks: [],
-  albums: [],
-};
-
 @Injectable()
 export class DataService {
+  private users: User[] = [];
+
+  private tracks: Track[] = [];
+
+  private artists: Artist[] = [];
+
+  private albums: Album[] = [];
+
+  private favorites: Favorites = {
+    artists: [],
+    tracks: [],
+    albums: [],
+  };
+
   public async getAllUsers(): Promise<User[]> {
-    return users;
+    return this.users;
   }
 
   public async getUser(userId: string): Promise<User | undefined> {
-    return users.find((user: User) => user.id === userId);
+    return this.users.find((user: User) => user.id === userId);
   }
 
   public async createUser(newUser: User): Promise<User> {
-    users.push(newUser);
+    this.users.push(newUser);
     return newUser;
   }
 
@@ -51,41 +46,35 @@ export class DataService {
     userId: string,
     updateDto: UpdatePasswordDto,
   ): Promise<User> {
-    const userIndex = users.findIndex((user: User) => user.id === userId);
-    const user = users[userIndex];
-    if (user.password !== updateDto.oldPassword) {
-      throw new HttpException(
-        ERRORS.OLD_PASSWORD_INCORRECT,
-        HttpStatus.FORBIDDEN,
-      );
-    }
-    users[userIndex] = {
+    const userIndex = this.users.findIndex((user: User) => user.id === userId);
+    const user = this.users[userIndex];
+    this.users[userIndex] = {
       ...user,
       password: updateDto.newPassword,
       version: user.version + 1,
       updatedAt: Date.now(),
     };
-    return users[userIndex];
+    return this.users[userIndex];
   }
 
   public async deleteUser(userId: string): Promise<void> {
-    const userIndex = users.findIndex((user: User) => user.id === userId);
+    const userIndex = this.users.findIndex((user: User) => user.id === userId);
     if (userIndex < 0) {
       throw new NotFoundException(ERRORS.USER_NOT_FOUND);
     }
-    users.splice(userIndex, 1);
+    this.users.splice(userIndex, 1);
   }
 
   public async getAllTracks(): Promise<Track[]> {
-    return tracks;
+    return this.tracks;
   }
 
   public async getTrack(trackId: string): Promise<Track | undefined> {
-    return tracks.find((track: Track) => track.id == trackId);
+    return this.tracks.find((track: Track) => track.id == trackId);
   }
 
   public async createTrack(newTrack: Track): Promise<Track> {
-    tracks.push(newTrack);
+    this.tracks.push(newTrack);
     return newTrack;
   }
 
@@ -93,51 +82,58 @@ export class DataService {
     trackId: string,
     updateDto: UpdateTrackDto,
   ): Promise<Track> {
-    const trackIndex = tracks.findIndex((track: Track) => track.id === trackId);
-    const newTrack = { ...tracks[trackIndex], ...updateDto };
-    tracks[trackIndex] = newTrack;
+    const trackIndex = this.tracks.findIndex(
+      (track: Track) => track.id === trackId,
+    );
+    const newTrack = { ...this.tracks[trackIndex], ...updateDto };
+    this.tracks[trackIndex] = newTrack;
     return newTrack;
   }
 
-  public async deleteTrack(trackId: string): Promise<void> {
-    const trackIndex = tracks.findIndex((track: Track) => track.id === trackId);
+  public async deleteTrack(trackId: string): Promise<boolean> {
+    const trackIndex = this.tracks.findIndex(
+      (track: Track) => track.id === trackId,
+    );
     if (trackIndex < 0) {
       throw new NotFoundException(ERRORS.TRACK_NOT_FOUND);
     }
-    tracks.splice(trackIndex, 1);
+    this.tracks.splice(trackIndex, 1);
 
-    const indexInFavorites = favorites.tracks.findIndex(
+    const indexInFavorites = this.favorites.tracks.findIndex(
       (favoriteTrackId) => favoriteTrackId === trackId,
     );
     if (indexInFavorites >= 0) {
-      favorites.tracks.splice(indexInFavorites, 1);
+      this.favorites.tracks.splice(indexInFavorites, 1);
+      return true;
     }
   }
 
-  public async addTrackToFavorites(trackId: string): Promise<void> {
-    favorites.tracks.push(trackId);
+  public async addTrackToFavorites(trackId: string): Promise<boolean> {
+    this.favorites.tracks.push(trackId);
+    return true;
   }
 
-  public async deleteTrackFromFavorites(trackId: string): Promise<void> {
-    const indexInFavorites = favorites.tracks.findIndex(
+  public async deleteTrackFromFavorites(trackId: string): Promise<boolean> {
+    const indexInFavorites = this.favorites.tracks.findIndex(
       (favoriteTrackId) => favoriteTrackId === trackId,
     );
     if (indexInFavorites < 0) {
       throw new NotFoundException(ERRORS.TRACK_NOT_FOUND_IN_FAVORITES);
     }
-    favorites.tracks.splice(indexInFavorites, 1);
+    this.favorites.tracks.splice(indexInFavorites, 1);
+    return true;
   }
 
   public async getAllArtists(): Promise<Artist[]> {
-    return artists;
+    return this.artists;
   }
 
   public async getArtist(artistId: string): Promise<Artist | undefined> {
-    return artists.find((artist: Artist) => artist.id == artistId);
+    return this.artists.find((artist: Artist) => artist.id == artistId);
   }
 
   public async createArtist(newArtist: Artist): Promise<Artist> {
-    artists.push(newArtist);
+    this.artists.push(newArtist);
     return newArtist;
   }
 
@@ -145,67 +141,69 @@ export class DataService {
     artistId: string,
     updateDto: UpdateArtistDto,
   ): Promise<Artist> {
-    const indexArtist = artists.findIndex(
+    const indexArtist = this.artists.findIndex(
       (artist: Artist) => artist.id === artistId,
     );
-    const newArtist = { ...artists[indexArtist], ...updateDto };
-    artists[indexArtist] = newArtist;
+    const newArtist = { ...this.artists[indexArtist], ...updateDto };
+    this.artists[indexArtist] = newArtist;
     return newArtist;
   }
 
   public async deleteArtist(artistId: string): Promise<void> {
-    const indexArtist = artists.findIndex(
+    const indexArtist = this.artists.findIndex(
       (artist: Artist) => artist.id === artistId,
     );
     if (indexArtist < 0) {
       throw new NotFoundException(ERRORS.ARTIST_NOT_FOUND);
     }
-    artists.splice(indexArtist, 1);
+    this.artists.splice(indexArtist, 1);
 
-    const indexInFavourites = favorites.artists.findIndex(
+    const indexInFavourites = this.favorites.artists.findIndex(
       (favouriteArtistId) => favouriteArtistId === artistId,
     );
     if (indexInFavourites >= 0) {
-      favorites.artists.splice(indexInFavourites, 1);
+      this.favorites.artists.splice(indexInFavourites, 1);
     }
 
-    tracks.forEach((track: Track) => {
+    this.tracks.forEach((track: Track) => {
       if (track.artistId === artistId) {
         track.artistId = null;
       }
     });
 
-    albums.forEach((album: Album) => {
+    this.albums.forEach((album: Album) => {
       if (album.artistId === artistId) {
         album.artistId = null;
       }
     });
   }
 
-  public async addArtistToFavorites(artistId: string): Promise<void> {
-    favorites.artists.push(artistId);
+  public async addArtistToFavorites(artistId: string): Promise<boolean> {
+    this.favorites.artists.push(artistId);
+    return true;
   }
 
-  public async deleteArtistFromFavorites(artistId: string): Promise<void> {
-    const indexInFavourites = favorites.artists.findIndex(
+  public async deleteArtistFromFavorites(artistId: string): Promise<boolean> {
+    const indexInFavourites = this.favorites.artists.findIndex(
       (favouriteArtistId) => favouriteArtistId === artistId,
     );
     if (indexInFavourites < 0) {
       throw new NotFoundException(ERRORS.ARTIST_NOT_FOUND_IN_FAVORITES);
     }
-    favorites.artists.splice(indexInFavourites, 1);
+    this.favorites.artists.splice(indexInFavourites, 1);
+    return true;
   }
 
   public async getAllAlbums(): Promise<Album[]> {
-    return albums;
+    return this.albums;
   }
 
   public async getAlbum(albumId: string): Promise<Album | undefined> {
-    return albums.find((album: Album) => album.id == albumId);
+    return this.albums.find((album: Album) => album.id == albumId);
   }
 
   public async createAlbum(newAlbum: Album): Promise<Album> {
-    albums.push(newAlbum);
+    this.albums.push(newAlbum);
     return newAlbum;
   }
 
@@ -213,48 +211,54 @@ export class DataService {
     albumId: string,
     updateDto: UpdateAlbumDto,
   ): Promise<Album> {
-    const albumIndex = albums.findIndex((album: Album) => album.id === albumId);
-    const newAlbum = { ...albums[albumIndex], ...updateDto };
-    albums[albumIndex] = newAlbum;
+    const albumIndex = this.albums.findIndex(
+      (album: Album) => album.id === albumId,
+    );
+    const newAlbum = { ...this.albums[albumIndex], ...updateDto };
+    this.albums[albumIndex] = newAlbum;
     return newAlbum;
   }
 
   public async deleteAlbum(albumId: string): Promise<void> {
-    const albumIndex = albums.findIndex((album: Album) => album.id === albumId);
+    const albumIndex = this.albums.findIndex(
+      (album: Album) => album.id === albumId,
+    );
     if (albumIndex < 0) {
       throw new NotFoundException(ERRORS.ALBUM_NOT_FOUND);
     }
-    albums.splice(albumIndex, 1);
+    this.albums.splice(albumIndex, 1);
 
-    const indexInFavourites = favorites.albums.findIndex(
+    const indexInFavourites = this.favorites.albums.findIndex(
       (favoriteAlbumId) => favoriteAlbumId === albumId,
     );
     if (indexInFavourites >= 0) {
-      favorites.albums.splice(indexInFavourites, 1);
+      this.favorites.albums.splice(indexInFavourites, 1);
     }
 
-    tracks.forEach((track: Track) => {
+    this.tracks.forEach((track: Track) => {
       if (track.albumId === albumId) {
         track.albumId = null;
       }
     });
   }
 
-  public async addAlbumToFavorites(albumId: string): Promise<void> {
-    favorites.albums.push(albumId);
+  public async addAlbumToFavorites(albumId: string): Promise<boolean> {
+    this.favorites.albums.push(albumId);
+    return true;
   }
 
-  public async deleteAlbumFromFavorites(albumId: string): Promise<void> {
-    const indexInFavorites = favorites.albums.findIndex(
+  public async deleteAlbumFromFavorites(albumId: string): Promise<boolean> {
+    const indexInFavorites = this.favorites.albums.findIndex(
       (favoriteAlbumId) => favoriteAlbumId === albumId,
     );
     if (indexInFavorites < 0) {
       throw new NotFoundException(ERRORS.ALBUM_NOT_FOUND_IN_FAVORITES);
     }
-    favorites.albums.splice(indexInFavorites, 1);
+    this.favorites.albums.splice(indexInFavorites, 1);
+    return true;
   }
 
   public async getFavorites(): Promise<Favorites> {
-    return favorites;
+    return this.favorites;
   }
 }

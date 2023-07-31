@@ -5,10 +5,14 @@ import {
   ParseUUIDPipe,
   Delete,
   HttpCode,
+  UnprocessableEntityException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { FavoritesAlbumsService } from './favorites-albums.service';
+
+import { ERRORS } from '../constants/index';
 
 @ApiTags('favs/album')
 @Controller()
@@ -18,15 +22,26 @@ export class FavoritesAlbumsController {
   @Post(':albumId')
   async addToFavorites(
     @Param('albumId', ParseUUIDPipe) albumId: string,
-  ): Promise<void> {
-    return this.favoritesAlbumsService.addToFavorites(albumId);
+  ): Promise<boolean> {
+    const addedToFavorites = await this.favoritesAlbumsService.addToFavorites(
+      albumId,
+    );
+    if (!addedToFavorites) {
+      throw new UnprocessableEntityException(ERRORS.ALBUM_NOT_FOUND);
+    }
+    return addedToFavorites;
   }
 
   @Delete(':albumId')
   @HttpCode(204)
   async deleteFromFavorites(
     @Param('albumId', ParseUUIDPipe) albumId: string,
-  ): Promise<void> {
-    return this.favoritesAlbumsService.deleteFromFavorites(albumId);
+  ): Promise<boolean> {
+    const deletedFromFavorites =
+      await this.favoritesAlbumsService.deleteFromFavorites(albumId);
+    if (!deletedFromFavorites) {
+      throw new NotFoundException(ERRORS.ALBUM_NOT_FOUND);
+    }
+    return true;
   }
 }

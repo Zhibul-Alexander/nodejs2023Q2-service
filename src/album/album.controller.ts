@@ -8,6 +8,7 @@ import {
   Put,
   Delete,
   HttpCode,
+  NotFoundException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -16,6 +17,8 @@ import { AlbumService } from './album.service';
 import { Album } from './dto/album.dto';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
+
+import { ERRORS } from '../constants/index';
 
 @ApiTags('album')
 @Controller('album')
@@ -31,7 +34,11 @@ export class AlbumController {
   async getAlbum(
     @Param('albumId', ParseUUIDPipe) albumId: string,
   ): Promise<Album> {
-    return this.albumService.getAlbum(albumId);
+    const album = await this.albumService.getAlbum(albumId);
+    if (!album) {
+      throw new NotFoundException(ERRORS.ALBUM_NOT_FOUND);
+    }
+    return album;
   }
 
   @Post()
@@ -44,7 +51,11 @@ export class AlbumController {
     @Body() updateDto: UpdateAlbumDto,
     @Param('albumId', ParseUUIDPipe) albumId: string,
   ): Promise<Album> {
-    return this.albumService.updateAlbum(albumId, updateDto);
+    const album = await this.albumService.updateAlbum(albumId, updateDto);
+    if (!album) {
+      throw new NotFoundException(ERRORS.ALBUM_NOT_FOUND);
+    }
+    return album;
   }
 
   @Delete(':albumId')

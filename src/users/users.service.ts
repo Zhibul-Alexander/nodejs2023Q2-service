@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
 import { DataService } from '../data/data.service';
@@ -24,15 +20,15 @@ export class UsersService {
     });
   }
 
-  public async getUser(userId: string): Promise<User> {
+  public async getUser(userId: string): Promise<User | undefined> {
     const user = await this.dataService.getUser(userId);
     if (!user) {
-      throw new NotFoundException(ERRORS.USER_NOT_FOUND);
+      return;
     }
     return new User(user);
   }
 
-  public async createUser(createDto: CreateUserDto): Promise<User> {
+  public async createUser(createDto: CreateUserDto): Promise<User | undefined> {
     const newUser: User = {
       ...createDto,
       id: uuidv4(),
@@ -44,20 +40,26 @@ export class UsersService {
       const user = await this.dataService.createUser(newUser);
       return new User(user);
     } catch {
-      throw new InternalServerErrorException(ERRORS.USER_CREATED_ERROR);
+      return;
     }
   }
 
   public async updatePassword(
     userId: string,
     updateDto: UpdatePasswordDto,
-  ): Promise<User> {
+  ): Promise<User | undefined> {
     const user = await this.dataService.getUser(userId);
     if (!user) {
-      throw new NotFoundException(ERRORS.USER_NOT_FOUND);
+      return;
     }
-    const updatedUser = await this.dataService.updateUser(userId, updateDto);
-    return new User(updatedUser);
+    if (user.password === updateDto.oldPassword) {
+      const updatedUser = await this.dataService.updateUser(userId, updateDto);
+      return new User(updatedUser);
+    }
+    throw new HttpException(
+      ERRORS.OLD_PASSWORD_INCORRECT,
+      HttpStatus.FORBIDDEN,
+    );
   }
 
   public async deleteUser(userId: string): Promise<void> {

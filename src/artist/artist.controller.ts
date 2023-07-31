@@ -8,6 +8,7 @@ import {
   Put,
   Delete,
   HttpCode,
+  NotFoundException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -16,6 +17,8 @@ import { ArtistService } from './artist.service';
 import { Artist } from './dto/artist.dto';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
+
+import { ERRORS } from '../constants/index';
 
 @ApiTags('artist')
 @Controller('artist')
@@ -31,7 +34,11 @@ export class ArtistController {
   async getArtist(
     @Param('artistId', ParseUUIDPipe) artistId: string,
   ): Promise<Artist> {
-    return this.artistService.getArtist(artistId);
+    const artist = await this.artistService.getArtist(artistId);
+    if (!artist) {
+      throw new NotFoundException(ERRORS.ARTIST_NOT_FOUND);
+    }
+    return artist;
   }
 
   @Post()
@@ -44,7 +51,11 @@ export class ArtistController {
     @Body() updateDto: UpdateArtistDto,
     @Param('artistId', ParseUUIDPipe) artistId: string,
   ): Promise<Artist> {
-    return this.artistService.updateArtist(artistId, updateDto);
+    const artist = await this.artistService.updateArtist(artistId, updateDto);
+    if (!artist) {
+      throw new NotFoundException(ERRORS.ARTIST_NOT_FOUND);
+    }
+    return artist;
   }
 
   @Delete(':artistId')

@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
 import { DataService } from '../data/data.service';
@@ -10,8 +6,6 @@ import { DataService } from '../data/data.service';
 import { Track } from './dto/track.dto';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
-
-import { ERRORS } from '../constants/index';
 
 @Injectable()
 export class TrackService {
@@ -21,15 +15,17 @@ export class TrackService {
     return this.dataService.getAllTracks();
   }
 
-  public async getTrack(trackId: string): Promise<Track> {
+  public async getTrack(trackId: string): Promise<Track | undefined> {
     const track = await this.dataService.getTrack(trackId);
     if (!track) {
-      throw new NotFoundException(ERRORS.TRACK_NOT_FOUND);
+      return;
     }
     return track;
   }
 
-  public async createTrack(createDto: CreateTrackDto): Promise<Track> {
+  public async createTrack(
+    createDto: CreateTrackDto,
+  ): Promise<Track | undefined> {
     const newTrack = {
       ...createDto,
       id: uuidv4(),
@@ -39,17 +35,17 @@ export class TrackService {
     try {
       return await this.dataService.createTrack(newTrack);
     } catch {
-      throw new InternalServerErrorException(ERRORS.TRACK_CREATED_ERROR);
+      return;
     }
   }
 
   public async updateTrack(
     trackId: string,
     updateDto: UpdateTrackDto,
-  ): Promise<Track> {
+  ): Promise<Track | undefined> {
     const track = await this.dataService.getTrack(trackId);
     if (!track) {
-      throw new NotFoundException(ERRORS.TRACK_NOT_FOUND);
+      return;
     }
     return this.dataService.updateTrack(trackId, updateDto);
   }

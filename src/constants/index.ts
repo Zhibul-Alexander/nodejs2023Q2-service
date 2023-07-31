@@ -2,7 +2,7 @@ export const ERRORS = {
   USER_NOT_FOUND: 'User not found',
   OLD_PASSWORD_INCORRECT: 'Old password incorrect',
   USER_CREATED_ERROR: 'User created error',
-  ERROR: 'Error',
+  ERROR: 'Something went wrong, please try again later',
   TRACK_NOT_FOUND: 'Track not found',
   TRACK_NOT_FOUND_IN_FAVORITES: 'Track not found in favorites tracks list',
   TRACK_CREATED_ERROR: 'Track created error',

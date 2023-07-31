@@ -8,6 +8,8 @@ import {
   Put,
   Delete,
   HttpCode,
+  InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -16,6 +18,8 @@ import { TrackService } from './track.service';
 import { Track } from './dto/track.dto';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
+
+import { ERRORS } from '../constants/index';
 
 @ApiTags('track')
 @Controller('track')
@@ -31,12 +35,20 @@ export class TrackController {
   async getTrack(
     @Param('trackId', ParseUUIDPipe) trackId: string,
   ): Promise<Track> {
-    return this.trackService.getTrack(trackId);
+    const track = await this.trackService.getTrack(trackId);
+    if (!track) {
+      throw new NotFoundException(ERRORS.TRACK_NOT_FOUND);
+    }
+    return track;
   }
 
   @Post()
   async createTrack(@Body() createDto: CreateTrackDto): Promise<Track> {
-    return this.trackService.createTrack(createDto);
+    const track = await this.trackService.createTrack(createDto);
+    if (!track) {
+      throw new InternalServerErrorException(ERRORS.ERROR);
+    }
+    return track;
   }
 
   @Put(':trackId')
@@ -44,7 +56,11 @@ export class TrackController {
     @Body() updateDto: UpdateTrackDto,
     @Param('trackId', ParseUUIDPipe) trackId: string,
   ): Promise<Track> {
-    return this.trackService.updateTrack(trackId, updateDto);
+    const track = await this.trackService.updateTrack(trackId, updateDto);
+    if (!track) {
+      throw new NotFoundException(ERRORS.TRACK_NOT_FOUND);
+    }
+    return track;
   }
 
   @Delete(':trackId')

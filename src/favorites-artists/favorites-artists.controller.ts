@@ -42,6 +42,6 @@ export class FavoritesArtistsController {
     if (!deletedToFavorites) {
       throw new NotFoundException(ERRORS.ARTIST_NOT_FOUND);
     }
-    return deletedToFavorites;
+    return true;
   }
 }

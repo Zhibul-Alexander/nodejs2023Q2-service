@@ -25,9 +25,9 @@ export class AlbumService {
 
   public async createAlbum(createDto: CreateAlbumDto): Promise<Album> {
     const newAlbum = {
-      ...createDto,
       id: uuidv4(),
       artistId: null,
+      ...createDto,
     };
     return this.dataService.createAlbum(newAlbum);
   }

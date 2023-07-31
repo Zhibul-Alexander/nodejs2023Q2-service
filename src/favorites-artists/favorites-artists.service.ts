@@ -19,7 +19,7 @@ export class FavoritesArtistsService {
   ): Promise<boolean | undefined> {
     const artist = await this.dataService.getArtist(artistId);
     if (!artist) {
-      return false;
+      return undefined;
     }
     await this.dataService.deleteArtistFromFavorites(artistId);
     return true;

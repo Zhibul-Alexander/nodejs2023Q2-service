@@ -27,10 +27,10 @@ export class TrackService {
     createDto: CreateTrackDto,
   ): Promise<Track | undefined> {
     const newTrack = {
-      ...createDto,
       id: uuidv4(),
       artistId: null,
       albumId: null,
+      ...createDto,
     };
     try {
       return await this.dataService.createTrack(newTrack);

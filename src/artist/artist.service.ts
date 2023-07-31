@@ -25,8 +25,8 @@ export class ArtistService {
 
   public async createArtist(createDto: CreateArtistDto): Promise<Artist> {
     const newArtist = {
-      ...createDto,
       id: uuidv4(),
+      ...createDto,
     };
     return this.dataService.createArtist(newArtist);
   }

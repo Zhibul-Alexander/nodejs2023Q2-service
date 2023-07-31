@@ -9,6 +9,7 @@ import {
   Delete,
   HttpCode,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { TrackService } from './track.service';
 
@@ -16,6 +17,7 @@ import { Track } from './dto/track.dto';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track.dto';
 
+@ApiTags('track')
 @Controller('track')
 export class TrackController {
   constructor(private trackService: TrackService) {}

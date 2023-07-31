@@ -9,6 +9,7 @@ import {
   Delete,
   HttpCode,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { AlbumService } from './album.service';
 
@@ -16,6 +17,7 @@ import { Album } from './dto/album.dto';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 
+@ApiTags('album')
 @Controller('album')
 export class AlbumController {
   constructor(private albumService: AlbumService) {}

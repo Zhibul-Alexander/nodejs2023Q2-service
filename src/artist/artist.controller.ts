@@ -9,6 +9,7 @@ import {
   Delete,
   HttpCode,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { ArtistService } from './artist.service';
 
@@ -16,6 +17,7 @@ import { Artist } from './dto/artist.dto';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 
+@ApiTags('artist')
 @Controller('artist')
 export class ArtistController {
   constructor(private artistService: ArtistService) {}

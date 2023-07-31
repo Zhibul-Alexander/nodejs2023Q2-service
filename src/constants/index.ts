@@ -13,3 +13,9 @@ export const ERRORS = {
   ALBUM_NOT_FOUND_IN_FAVORITES: 'Album not found in favorites albums list',
   ALBUM_CREATED_ERROR: 'Album created error',
 };
+
+export const DOCUMENT_CONFIG = {
+  TITLE: 'Home Library Service',
+  DESCRIPTION: 'Home music library service',
+  VERSION: '1.0',
+};

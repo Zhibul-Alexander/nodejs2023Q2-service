@@ -6,9 +6,11 @@ import {
   Delete,
   HttpCode,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { FavoritesArtistsService } from './favorites-artists.service';
 
+@ApiTags('favs/artist')
 @Controller()
 export class FavoritesArtistsController {
   constructor(private favoritesArtistsService: FavoritesArtistsService) {}

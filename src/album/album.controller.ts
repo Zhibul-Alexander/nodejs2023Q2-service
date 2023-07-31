@@ -7,6 +7,7 @@ import {
   Body,
   Put,
   Delete,
+  HttpCode,
 } from '@nestjs/common';
 
 import { AlbumService } from './album.service';
@@ -45,6 +46,7 @@ export class AlbumController {
   }
 
   @Delete(':albumId')
+  @HttpCode(204)
   async deleteAlbum(
     @Param('albumId', ParseUUIDPipe) albumId: string,
   ): Promise<void> {

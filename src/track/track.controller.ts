@@ -7,6 +7,7 @@ import {
   Body,
   Put,
   Delete,
+  HttpCode,
 } from '@nestjs/common';
 
 import { TrackService } from './track.service';
@@ -45,6 +46,7 @@ export class TrackController {
   }
 
   @Delete(':trackId')
+  @HttpCode(204)
   async deleteTrack(
     @Param('trackId', ParseUUIDPipe) trackId: string,
   ): Promise<void> {

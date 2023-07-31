@@ -7,6 +7,7 @@ import {
   Body,
   Put,
   Delete,
+  HttpCode,
 } from '@nestjs/common';
 
 import { ArtistService } from './artist.service';
@@ -45,6 +46,7 @@ export class ArtistController {
   }
 
   @Delete(':artistId')
+  @HttpCode(204)
   async deleteArtist(
     @Param('artistId', ParseUUIDPipe) artistId: string,
   ): Promise<void> {

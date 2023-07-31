@@ -14,7 +14,6 @@ export class FavoritesAlbumsService {
 
   public async addToFavorites(albumId: string): Promise<void> {
     const album = await this.dataService.getAlbum(albumId);
-
     if (!album) {
       throw new UnprocessableEntityException(ERRORS.ALBUM_NOT_FOUND);
     }

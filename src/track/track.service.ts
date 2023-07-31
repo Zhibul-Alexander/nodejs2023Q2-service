@@ -48,7 +48,7 @@ export class TrackService {
     updateDto: UpdateTrackDto,
   ): Promise<Track> {
     const track = await this.dataService.getTrack(trackId);
-    if (track) {
+    if (!track) {
       throw new NotFoundException(ERRORS.TRACK_NOT_FOUND);
     }
     return this.dataService.updateTrack(trackId, updateDto);

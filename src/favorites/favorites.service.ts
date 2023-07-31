@@ -11,8 +11,8 @@ export class FavoritesService {
   public async getAllFavorites(): Promise<FavoritesResponse> {
     const {
       artists: artistsIds,
-      tracks: tracksIds,
       albums: albumsIds,
+      tracks: tracksIds,
     } = await this.dataService.getFavorites();
 
     return {

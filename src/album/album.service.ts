@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
-import { albums } from '../store';
+import { DataService } from '../data/data.service';
 
 import { Album } from './dto/album.dto';
 import { CreateAlbumDto } from './dto/create-album.dto';
@@ -11,12 +15,14 @@ import { ERRORS } from '../constants';
 
 @Injectable()
 export class AlbumService {
+  constructor(private dataService: DataService) {}
+
   public async getAllAlbums(): Promise<Album[]> {
-    return albums;
+    return this.dataService.getAllAlbums();
   }
 
   public async getAlbum(albumId: string): Promise<Album> {
-    const album = albums.find((album: Album) => album.id === albumId);
+    const album = await this.dataService.getAlbum(albumId);
     if (!album) {
       throw new NotFoundException(ERRORS.ALBUM_NOT_FOUND);
     }
@@ -29,27 +35,25 @@ export class AlbumService {
       id: uuidv4(),
       artistId: null,
     };
-    albums.push(newAlbum);
-    return newAlbum;
+    try {
+      return this.dataService.createAlbum(newAlbum);
+    } catch {
+      throw new InternalServerErrorException(ERRORS.ALBUM_CREATED_ERROR);
+    }
   }
 
   public async updateAlbum(
     albumId: string,
     updateDto: UpdateAlbumDto,
   ): Promise<Album> {
-    const albumIndex = albums.findIndex((album: Album) => album.id === albumId);
-    if (albumIndex < 0) {
+    const album = await this.dataService.getAlbum(albumId);
+    if (!album) {
       throw new NotFoundException(ERRORS.ALBUM_NOT_FOUND);
     }
-    albums[albumIndex] = { ...albums[albumIndex], ...updateDto };
-    return albums[albumIndex];
+    return this.dataService.updateAlbum(albumId, updateDto);
   }
 
   public async deleteAlbum(albumId: string): Promise<void> {
-    const albumIndex = albums.findIndex((album: Album) => album.id === albumId);
-    if (albumIndex < 0) {
-      throw new NotFoundException(ERRORS.ALBUM_NOT_FOUND);
-    }
-    albums.splice(albumIndex, 1);
+    return this.dataService.deleteAlbum(albumId);
   }
 }

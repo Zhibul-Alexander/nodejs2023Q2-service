@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
-import { artists } from '../store';
+import { DataService } from '../data/data.service';
 
 import { Artist } from './dto/artist.dto';
 import { CreateArtistDto } from './dto/create-artist.dto';
@@ -11,12 +15,14 @@ import { ERRORS } from '../constants/index';
 
 @Injectable()
 export class ArtistService {
+  constructor(private dataService: DataService) {}
+
   public async getAllArtists(): Promise<Artist[]> {
-    return artists;
+    return this.dataService.getAllArtists();
   }
 
   public async getArtist(artistId: string): Promise<Artist> {
-    const artist = artists.find((artist: Artist) => artist.id === artistId);
+    const artist = await this.dataService.getArtist(artistId);
     if (!artist) {
       throw new NotFoundException(ERRORS.ARTIST_NOT_FOUND);
     }
@@ -28,31 +34,25 @@ export class ArtistService {
       ...createDto,
       id: uuidv4(),
     };
-    artists.push(newArtist);
-    return newArtist;
+    try {
+      return await this.dataService.createArtist(newArtist);
+    } catch {
+      throw new InternalServerErrorException(ERRORS.ARTIST_CREATED_ERROR);
+    }
   }
 
   public async updateArtist(
     artistId: string,
     updateDto: UpdateArtistDto,
   ): Promise<Artist> {
-    const indexArtist = artists.findIndex(
-      (artist: Artist) => artist.id === artistId,
-    );
-    if (indexArtist < 0) {
+    const artist = await this.dataService.getArtist(artistId);
+    if (!artist) {
       throw new NotFoundException(ERRORS.ARTIST_NOT_FOUND);
     }
-    artists[indexArtist] = { ...artists[indexArtist], ...updateDto };
-    return artists[indexArtist];
+    return this.dataService.updateArtist(artistId, updateDto);
   }
 
   public async deleteArtist(artistId: string): Promise<void> {
-    const indexArtist = artists.findIndex(
-      (artist: Artist) => artist.id === artistId,
-    );
-    if (indexArtist < 0) {
-      throw new NotFoundException(ERRORS.ARTIST_NOT_FOUND);
-    }
-    artists.splice(indexArtist, 1);
+    await this.dataService.deleteArtist(artistId);
   }
 }

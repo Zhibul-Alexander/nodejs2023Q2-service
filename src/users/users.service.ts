@@ -48,7 +48,7 @@ export class UsersService {
       const { password, ...rest } = user;
       return rest;
     } catch {
-      throw new InternalServerErrorException(ERRORS.ERROR);
+      throw new InternalServerErrorException(ERRORS.USER_CREATED_ERROR);
     }
   }
 

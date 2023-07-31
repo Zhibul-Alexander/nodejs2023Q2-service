@@ -39,7 +39,7 @@ export class TrackService {
     try {
       return await this.dataService.createTrack(newTrack);
     } catch {
-      throw new InternalServerErrorException(ERRORS.ERROR);
+      throw new InternalServerErrorException(ERRORS.TRACK_CREATED_ERROR);
     }
   }
 

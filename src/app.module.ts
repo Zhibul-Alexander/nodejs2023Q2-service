@@ -21,6 +21,8 @@ import { FavoritesTracksModule } from './favorites-tracks/favorites-tracks.modul
     AlbumModule,
     FavoritesModule,
     FavoritesAlbumsModule,
+    FavoritesArtistsModule,
+    FavoritesTracksModule,
     RouterModule.register([
       {
         path: 'favs',

@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 
-import { tracks } from '../store/index';
+import { DataService } from '../data/data.service';
 
 import { Track } from './dto/track.dto';
 import { CreateTrackDto } from './dto/create-track.dto';
@@ -11,12 +15,14 @@ import { ERRORS } from '../constants/index';
 
 @Injectable()
 export class TrackService {
+  constructor(private dataService: DataService) {}
+
   public async getAllTracks(): Promise<Track[]> {
-    return tracks;
+    return this.dataService.getAllTracks();
   }
 
   public async getTrack(trackId: string): Promise<Track> {
-    const track = tracks.find((track: Track) => track.id === trackId);
+    const track = await this.dataService.getTrack(trackId);
     if (!track) {
       throw new NotFoundException(ERRORS.TRACK_NOT_FOUND);
     }
@@ -30,27 +36,25 @@ export class TrackService {
       artistId: null,
       albumId: null,
     };
-    tracks.push(newTrack);
-    return newTrack;
+    try {
+      return await this.dataService.createTrack(newTrack);
+    } catch {
+      throw new InternalServerErrorException(ERRORS.ERROR);
+    }
   }
 
   public async updateTrack(
     trackId: string,
     updateDto: UpdateTrackDto,
   ): Promise<Track> {
-    const trackIndex = tracks.findIndex((track: Track) => track.id === trackId);
-    if (trackIndex < 0) {
+    const track = await this.dataService.getTrack(trackId);
+    if (track) {
       throw new NotFoundException(ERRORS.TRACK_NOT_FOUND);
     }
-    tracks[trackIndex] = { ...tracks[trackIndex], ...updateDto };
-    return tracks[trackIndex];
+    return this.dataService.updateTrack(trackId, updateDto);
   }
 
   public async deleteTrack(trackId: string): Promise<void> {
-    const trackIndex = tracks.findIndex((track: Track) => track.id === trackId);
-    if (trackIndex < 0) {
-      throw new NotFoundException(ERRORS.TRACK_NOT_FOUND);
-    }
-    tracks.splice(trackIndex, 1);
+    await this.dataService.deleteTrack(trackId);
   }
 }

@@ -12,14 +12,18 @@ import {
   ClassSerializerInterceptor,
   InternalServerErrorException,
   NotFoundException,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { UsersService } from './users.service';
 
-import { User } from './dto/user.dto';
+import User from './users.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+
+import { NotFoundError, IncorrectPasswordError } from '../errors/index';
 
 import { ERRORS } from '../constants/index';
 
@@ -36,20 +40,23 @@ export class UsersController {
 
   @Get(':userId')
   async getUser(@Param('userId', ParseUUIDPipe) userId: string): Promise<User> {
-    const user = await this.usersService.getUser(userId);
-    if (!user) {
-      throw new NotFoundException(ERRORS.USER_NOT_FOUND);
+    try {
+      return await this.usersService.getUser(userId);
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw new NotFoundException(e.message);
+      }
+      throw new InternalServerErrorException(ERRORS.ERROR);
     }
-    return user;
   }
 
   @Post()
   async createUser(@Body() createDto: CreateUserDto): Promise<User> {
-    const user = await this.usersService.createUser(createDto);
-    if (!user) {
+    try {
+      return this.usersService.createUser(createDto);
+    } catch {
       throw new InternalServerErrorException(ERRORS.ERROR);
     }
-    return user;
   }
 
   @Put(':userId')
@@ -57,14 +64,17 @@ export class UsersController {
     @Body() updateDto: UpdatePasswordDto,
     @Param('userId', ParseUUIDPipe) userId: string,
   ): Promise<User> {
-    const updatedUser = await this.usersService.updatePassword(
-      userId,
-      updateDto,
-    );
-    if (!updatedUser) {
-      throw new NotFoundException(ERRORS.USER_NOT_FOUND);
+    try {
+      return await this.usersService.updatePassword(userId, updateDto);
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw new NotFoundException(e.message);
+      }
+      if (e instanceof IncorrectPasswordError) {
+        throw new HttpException(e.message, HttpStatus.FORBIDDEN);
+      }
+      throw new InternalServerErrorException(ERRORS.ERROR);
     }
-    return updatedUser;
   }
 
   @Delete(':userId')
@@ -72,6 +82,13 @@ export class UsersController {
   async deleteUser(
     @Param('userId', ParseUUIDPipe) userId: string,
   ): Promise<void> {
-    return this.usersService.deleteUser(userId);
+    try {
+      await this.usersService.deleteUser(userId);
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw new NotFoundException(e.message);
+      }
+      throw new InternalServerErrorException(ERRORS.ERROR);
+    }
   }
 }
